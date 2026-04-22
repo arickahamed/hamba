@@ -3,7 +3,7 @@ import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 
 i18n
-    .use(LanguageDetector) 
+    .use(LanguageDetector)
     .use(initReactI18next)
     .init({
         fallbackLng: "en",
@@ -31,6 +31,19 @@ i18n
                     sorkariKolija: "Sorkari Kolija (kg)",
                     sorkariTel: "Sorkari Tel (kg)",
                     sam: "sam",
+                    multiQuestion: "Do you have people from another sam?",
+                    yes: "Yes",
+                    no: "No",
+                    samNumber: "How many sam (1-4)",
+                    next: "Next",
+                    invalidSam: "Sam must be between 1 and 4",
+                    invalidContributors: "Contributors must be 1-7",
+                    invalidTotalContributors: "Total contributors must be 1-7",
+                    maxContributors: "Max contributors is 7",
+                    fillAllFields: "Fill all fields correctly",
+                    invalidMeat: "Enter valid meat",
+                    invalidKolija: "Enter valid kolija",
+                    invalidTel: "Enter valid tel"
                 },
             },
             bn: {
@@ -49,7 +62,20 @@ i18n
                     sorkariMeat: "সরকারি মাংস (কেজি)",
                     sorkariKolija: "সরকারি কলিজা (কেজি)",
                     sorkariTel: "সরকারি তেল (কেজি)",
-                    sam: "ছাম"
+                    sam: "ছাম",
+                    multiQuestion: "আপনার দলে কি অন্য সামের মানুষ আছে?",
+                    yes: "হ্যাঁ",
+                    no: "না",
+                    samNumber: "কতটি সাম (১-৪)",
+                    next: "পরবর্তী",
+                    invalidSam: "সামের সংখ্যা ১ থেকে ৪ এর মধ্যে হতে হবে",
+                    invalidContributors: "অংশগ্রহণকারীর সংখ্যা ১ থেকে ৭ এর মধ্যে হতে হবে",
+                    invalidTotalContributors: "মোট অংশগ্রহণকারী ১ থেকে ৭ এর মধ্যে হতে হবে",
+                    maxContributors: "সর্বোচ্চ ৭ জন অংশগ্রহণকারী হতে পারবে",
+                    fillAllFields: "সব তথ্য সঠিকভাবে পূরণ করুন",
+                    invalidMeat: "সঠিক মাংসের পরিমাণ দিন",
+                    invalidKolija: "সঠিক কলিজার পরিমাণ দিন",
+                    invalidTel: "সঠিক তেলের পরিমাণ দিন"
                 },
             },
         },

@@ -8,6 +8,7 @@ import toBengaliNumber from "@/app/lib/bengaliNum";
 export default function Home() {
   const { t, i18n } = useTranslation();
   const [sam, setSam] = useState("");
+  const [hasMultipleSam, setHasMultipleSam] = useState(null);
   const [finalSam, setFinalSam] = useState(null);
   const [groups, setGroups] = useState([]);
   const [totalMeat, setTotalMeat] = useState("");
@@ -56,13 +57,12 @@ export default function Home() {
 
     const parsed = groups.map((g) => ({
       ...g,
-      contributors: Number(g.contributors),
+      contributors: parseFloat(g.contributors),
     }));
 
-    // validation
     for (let g of parsed) {
       if (!g.name || g.contributors < 1) {
-        alert("Fill all fields correctly");
+        alert(t("fillAllFields"));
         return;
       }
     }
@@ -72,29 +72,18 @@ export default function Home() {
       0,
     );
 
-    if (totalContributors > 7) {
-      alert("Total contributors cannot exceed 7");
+    if (totalContributors > 7 || totalContributors <= 0) {
+      alert(t("invalidTotalContributors"));
       return;
     }
 
-    const Tm = Number(totalMeat);
-    const Tk = Number(totalKolija);
-    const Tt = Number(totalTel);
+    const Tm = parseFloat(totalMeat);
+    const Tk = parseFloat(totalKolija);
+    const Tt = parseFloat(totalTel);
 
-    if (isNaN(Tm) || Tm <= 0) {
-      alert("Enter valid meat");
-      return;
-    }
-
-    if (isNaN(Tk) || Tk < 0) {
-      alert("Enter valid kolija");
-      return;
-    }
-
-    if (isNaN(Tt) || Tt < 0) {
-      alert("Enter valid tel");
-      return;
-    }
+    if (isNaN(Tm) || Tm <= 0) return alert(t("invalidMeat"));
+    if (isNaN(Tk) || Tk < 0) return alert(t("invalidKolija"));
+    if (isNaN(Tt) || Tt < 0) return alert(t("invalidTel"));
 
     const perShareMeat = Tm / totalContributors;
     const perShareKolija = Tk / totalContributors;
@@ -102,7 +91,7 @@ export default function Home() {
 
     const max = Math.max(...parsed.map((g) => g.contributors));
 
-    let sorkariApplied = false; // ✅ ensures only FIRST largest group
+    let sorkariApplied = false;
 
     const results = parsed.map((g) => {
       const totalMeatGroup = g.contributors * perShareMeat;
@@ -116,10 +105,6 @@ export default function Home() {
         const sorkariKolija = totalKolijaGroup / 3;
         const sorkariTel = totalTelGroup / 3;
 
-        const remainingMeat = totalMeatGroup - sorkariMeat;
-        const remainingKolija = totalKolijaGroup - sorkariKolija;
-        const remainingTel = totalTelGroup - sorkariTel;
-
         return {
           ...g,
           isLargest: true,
@@ -128,36 +113,145 @@ export default function Home() {
           totalKolija: totalKolijaGroup,
           totalTel: totalTelGroup,
 
-          perPersonMeat: remainingMeat / g.contributors,
-          perPersonKolija: remainingKolija / g.contributors,
-          perPersonTel: remainingTel / g.contributors,
+          perPersonMeat: (totalMeatGroup - sorkariMeat) / g.contributors,
+          perPersonKolija: (totalKolijaGroup - sorkariKolija) / g.contributors,
+          perPersonTel: (totalTelGroup - sorkariTel) / g.contributors,
 
           sorkariMeat,
           sorkariKolija,
           sorkariTel,
         };
-      } else {
-        return {
-          ...g,
-          isLargest: false,
-
-          totalMeat: totalMeatGroup,
-          totalKolija: totalKolijaGroup,
-          totalTel: totalTelGroup,
-
-          perPersonMeat: perShareMeat,
-          perPersonKolija: perShareKolija,
-          perPersonTel: perShareTel,
-
-          sorkariMeat: 0,
-          sorkariKolija: 0,
-          sorkariTel: 0,
-        };
       }
+
+      return {
+        ...g,
+        isLargest: false,
+
+        totalMeat: totalMeatGroup,
+        totalKolija: totalKolijaGroup,
+        totalTel: totalTelGroup,
+
+        perPersonMeat: perShareMeat,
+        perPersonKolija: perShareKolija,
+        perPersonTel: perShareTel,
+
+        sorkariMeat: 0,
+        sorkariKolija: 0,
+        sorkariTel: 0,
+      };
     });
 
     setResult({ results });
   };
+  // ---------------------------------
+  // const handleCalculate = (e) => {
+  //   e.preventDefault();
+
+  //   const parsed = groups.map((g) => ({
+  //     ...g,
+  //     contributors: Number(g.contributors),
+  //   }));
+
+  //   // validation
+  //   for (let g of parsed) {
+  //     if (!g.name || g.contributors < 1) {
+  //       alert("Fill all fields correctly");
+  //       return;
+  //     }
+  //   }
+
+  //   const totalContributors = parsed.reduce(
+  //     (sum, g) => sum + g.contributors,
+  //     0,
+  //   );
+
+  //   if (totalContributors > 7) {
+  //     alert("Total contributors cannot exceed 7");
+  //     return;
+  //   }
+
+  //   const Tm = Number(totalMeat);
+  //   const Tk = Number(totalKolija);
+  //   const Tt = Number(totalTel);
+
+  //   if (isNaN(Tm) || Tm <= 0) {
+  //     alert("Enter valid meat");
+  //     return;
+  //   }
+
+  //   if (isNaN(Tk) || Tk < 0) {
+  //     alert("Enter valid kolija");
+  //     return;
+  //   }
+
+  //   if (isNaN(Tt) || Tt < 0) {
+  //     alert("Enter valid tel");
+  //     return;
+  //   }
+
+  //   const perShareMeat = Tm / totalContributors;
+  //   const perShareKolija = Tk / totalContributors;
+  //   const perShareTel = Tt / totalContributors;
+
+  //   const max = Math.max(...parsed.map((g) => g.contributors));
+
+  //   let sorkariApplied = false; // ✅ ensures only FIRST largest group
+
+  //   const results = parsed.map((g) => {
+  //     const totalMeatGroup = g.contributors * perShareMeat;
+  //     const totalKolijaGroup = g.contributors * perShareKolija;
+  //     const totalTelGroup = g.contributors * perShareTel;
+
+  //     if (g.contributors === max && !sorkariApplied) {
+  //       sorkariApplied = true;
+
+  //       const sorkariMeat = totalMeatGroup / 3;
+  //       const sorkariKolija = totalKolijaGroup / 3;
+  //       const sorkariTel = totalTelGroup / 3;
+
+  //       const remainingMeat = totalMeatGroup - sorkariMeat;
+  //       const remainingKolija = totalKolijaGroup - sorkariKolija;
+  //       const remainingTel = totalTelGroup - sorkariTel;
+
+  //       return {
+  //         ...g,
+  //         isLargest: true,
+
+  //         totalMeat: totalMeatGroup,
+  //         totalKolija: totalKolijaGroup,
+  //         totalTel: totalTelGroup,
+
+  //         perPersonMeat: remainingMeat / g.contributors,
+  //         perPersonKolija: remainingKolija / g.contributors,
+  //         perPersonTel: remainingTel / g.contributors,
+
+  //         sorkariMeat,
+  //         sorkariKolija,
+  //         sorkariTel,
+  //       };
+  //     } else {
+  //       return {
+  //         ...g,
+  //         isLargest: false,
+
+  //         totalMeat: totalMeatGroup,
+  //         totalKolija: totalKolijaGroup,
+  //         totalTel: totalTelGroup,
+
+  //         perPersonMeat: perShareMeat,
+  //         perPersonKolija: perShareKolija,
+  //         perPersonTel: perShareTel,
+
+  //         sorkariMeat: 0,
+  //         sorkariKolija: 0,
+  //         sorkariTel: 0,
+  //       };
+  //     }
+  //   });
+
+  //   setResult({ results });
+  // };
+  // ----------------------------------
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-zinc-50">
@@ -183,7 +277,40 @@ export default function Home() {
         </div>
 
         {/* STEP 1 */}
-        {finalSam === null && (
+        {hasMultipleSam === null && (
+          <div className="text-center mb-4">
+            <p className="mb-3">{t("multiQuestion")}</p>
+
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => {
+                  setHasMultipleSam(false);
+                  setGroups([{ contributors: "" }]);
+                  setFinalSam(1);
+                }}
+                className="bg-red-600 text-white px-4 py-2 rounded"
+              >
+                {t("no")}
+              </button>
+
+              <button
+                onClick={() => {
+                  setHasMultipleSam(true);
+                  setGroups([
+                    { name: "", contributors: "" },
+                    { name: "", contributors: "" },
+                  ]);
+                  setFinalSam(2);
+                }}
+                className="bg-green-600 text-white px-4 py-2 rounded"
+              >
+                {t("yes")}
+              </button>
+            </div>
+          </div>
+        )}
+        {/*---------------------------------------- */}
+        {/* {finalSam === null && (
           <form onSubmit={handleSamSubmit} className="flex gap-2">
             <input
               type="number"
@@ -199,9 +326,9 @@ export default function Home() {
             >
               {t("add")}
             </button>
-            
           </form>
-        )}
+        )} */}
+        {/*---------------------------------------- */}
 
         {/* STEP 2 */}
         {finalSam !== null && !result && (
@@ -284,26 +411,21 @@ export default function Home() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* LEFT SIDE */}
                   <div className="space-y-1">
-                    {/* <p>
-                      → {t("contributors")}:{" "}
-                      {toBengaliNumber(r.contributors, i18n.language)}
-                    </p> */}
-
                     <p>
                       → {t("totalMeat")}:{" "}
                       {toBengaliNumber(r.totalMeat.toFixed(2), i18n.language)}{" "}
-                      kg
+                      
                     </p>
 
                     <p>
                       → {t("totalKolija")}:{" "}
                       {toBengaliNumber(r.totalKolija.toFixed(2), i18n.language)}{" "}
-                      kg
+                      
                     </p>
 
                     <p>
                       → {t("totalTel")}:{" "}
-                      {toBengaliNumber(r.totalTel.toFixed(2), i18n.language)} kg
+                      {toBengaliNumber(r.totalTel.toFixed(2), i18n.language)} 
                     </p>
                   </div>
 
@@ -315,7 +437,7 @@ export default function Home() {
                         r.perPersonMeat.toFixed(2),
                         i18n.language,
                       )}{" "}
-                      kg
+                      
                     </p>
 
                     <p>
@@ -324,7 +446,7 @@ export default function Home() {
                         r.perPersonKolija.toFixed(2),
                         i18n.language,
                       )}{" "}
-                      kg
+                      
                     </p>
 
                     <p>
@@ -333,7 +455,7 @@ export default function Home() {
                         r.perPersonTel.toFixed(2),
                         i18n.language,
                       )}{" "}
-                      kg
+                      
                     </p>
 
                     {/* SORKARI */}
@@ -345,7 +467,7 @@ export default function Home() {
                             r.sorkariMeat.toFixed(2),
                             i18n.language,
                           )}{" "}
-                          kg
+                          
                         </p>
                         <p>
                           → {t("sorkariKolija")}:{" "}
@@ -353,7 +475,7 @@ export default function Home() {
                             r.sorkariKolija.toFixed(2),
                             i18n.language,
                           )}{" "}
-                          kg
+                          
                         </p>
                         <p>
                           → {t("sorkariTel")}:{" "}
@@ -361,7 +483,7 @@ export default function Home() {
                             r.sorkariTel.toFixed(2),
                             i18n.language,
                           )}{" "}
-                          kg
+                          
                         </p>
                       </div>
                     )}
